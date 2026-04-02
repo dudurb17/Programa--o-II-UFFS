@@ -12,7 +12,6 @@
 // 2) Entrada e Saída de Data
 //
 // Lê DD/MM/AA e imprime MM/DD/AA, AA/MM/DD e DD-MM-AA (uma linha por formato).
-
 const entrada = prompt("Informe a data no formato DD/MM/AA:").trim();
 const partes = entrada.split("/");
 const dd = partes[0];
