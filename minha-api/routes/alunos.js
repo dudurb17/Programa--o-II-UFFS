@@ -2,12 +2,9 @@
 const express = require("express");
 const router = express.Router();
 // Banco de dados em memória (substituir por banco real depois)
-let alunos = [
-  { id: 1, nome: "Ana Souza", matricula: "2024001", curso: "CC" },
-  { id: 2, nome: "Bruno Lima", matricula: "2024002", curso: "CC" },
-  { id: 3, nome: "Carla Matos", matricula: "2024003", curso: "SI" },
-];
+const { alunos, disciplinas, matriculas } = require("../db/data");
 let proximoId = 4;
+
 // -- GET /alunos lista todos (com filtro opcional) -----------------------
 router.get("/", (req, res) => {
   const { curso } = req.query;
@@ -94,6 +91,60 @@ router.delete("/:id", (req, res) => {
   res.status(204).send(); // 204 No Content sem corpo na resposta
 });
 
+router.post("/:id/matriculas", (req, res) => {
+  const alunoId = parseInt(req.params.id);
+  const { disciplinaId } = req.body;
+  if (!disciplinaId) {
+    return res.status(400).json({
+      erro: "Dados inválidos",
+      detalhes: [
+        { campo: "disciplinaId", mensagem: "Obrigatório" },
+      ],
+    });
+  }
+  const aluno = alunos.find((a) => a.id === alunoId);
+  if (!aluno) {
+    return res.status(404).json({ erro: "Aluno não encontrado" });
+  }
+  const disciplina = disciplinas.find((d) => d.id === disciplinaId);
+  if (!disciplina) {
+    return res.status(404).json({ erro: "Disciplina não encontrada" });
+  }
+  const jaMatriculado = matriculas.find(
+    (m) => m.alunoId === alunoId && m.disciplinaId === disciplinaId,
+  );
+  if (jaMatriculado) {
+    return res
+      .status(409)
+      .json({ erro: "Aluno já matriculado nesta disciplina" });
+  }
+  if (disciplina.vagas <= 0) {
+    return res
+      .status(409)
+      .json({ erro: "Vagas esgotadas para esta disciplina" });
+  }
+  disciplina.vagas -= 1;
+  const novaMatricula = { alunoId, disciplinaId };
+  matriculas.push(novaMatricula);
+  res.status(201).json(novaMatricula);
+});
+
+router.get("/:id/matriculas", (req, res) => {
+  const alunoId = parseInt(req.params.id);
+  const aluno = alunos.find((a) => a.id === alunoId);
+  if (!aluno) {
+    return res.status(404).json({ erro: "Aluno não encontrado" });
+  }
+  const disciplinasDoAluno = matriculas
+    .filter((m) => m.alunoId === alunoId)
+    .map((m) => disciplinas.find((d) => d.id === m.disciplinaId));
+  res
+    .status(200)
+    .json({
+      mensagem: "Disciplinas do aluno " + aluno.nome + " listadas com sucesso",
+      total: disciplinasDoAluno.length,
+      disciplinas: disciplinasDoAluno,
+    });
+});
 
 module.exports = router;
-
