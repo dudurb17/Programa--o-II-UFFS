@@ -1,0 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const AlunoController = require('../controllers/alunoController');
+router.get('/', AlunoController.listar);
+router.post('/:id/matriculas', AlunoController.matricular);
+router.get('/:id/matriculas', AlunoController.listarMatriculas);
+router.get('/:id', AlunoController.buscar);
+router.post('/', AlunoController.criar);
+router.put('/:id', AlunoController.atualizar);
+router.delete('/:id', AlunoController.remover);
+module.exports = router;

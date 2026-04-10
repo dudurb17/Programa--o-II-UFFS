@@ -1,4 +1,4 @@
-// data/db.js
+// Dados em memória compartilhados pelos models (substituto temporário do banco).
 let alunos = [
   { id: 1, nome: "Eduardo Bedin", matricula: "2024001", curso: "CC" },
   { id: 2, nome: "Bruno Lima", matricula: "2024002", curso: "CC" },
