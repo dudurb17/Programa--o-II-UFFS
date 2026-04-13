@@ -21,11 +21,7 @@ function criar(dados) {
     throw new Error("Campos obrigatórios ausentes");
   }
   const existe = disciplinas.find((d) => d.codigo === dados.codigo);
-  if (existe) {
-    const e = new Error("Código " + dados.codigo + " já cadastrado");
-    e.status = 409;
-    throw e;
-  }
+  if (existe) throw new Error("Código " + dados.codigo + " já cadastrado");
   const novo = {
     id: proximoId++,
     nome: dados.nome,

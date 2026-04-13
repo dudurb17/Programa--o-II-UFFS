@@ -3,30 +3,21 @@ const AlunoModel = require("./alunoModel");
 const DisciplinaModel = require("./disciplinaModel");
 
 function matricular(alunoId, disciplinaId) {
+  if (disciplinaId == null || disciplinaId === "") {
+    throw new Error("Campos obrigatórios ausentes");
+  }
   const aluno = AlunoModel.buscarPorId(alunoId);
-  if (!aluno) {
-    const e = new Error("Aluno não encontrado");
-    e.status = 404;
-    throw e;
-  }
+  if (!aluno) throw new Error("Aluno não encontrado");
   const disciplina = DisciplinaModel.buscarPorId(disciplinaId);
-  if (!disciplina) {
-    const e = new Error("Disciplina não encontrada");
-    e.status = 404;
-    throw e;
-  }
+  if (!disciplina) throw new Error("Disciplina não encontrada");
   const jaMatriculado = matriculas.find(
     (m) => m.alunoId === alunoId && m.disciplinaId === disciplinaId,
   );
   if (jaMatriculado) {
-    const e = new Error("Aluno já matriculado nesta disciplina");
-    e.status = 409;
-    throw e;
+    throw new Error("Aluno já matriculado nesta disciplina");
   }
   if (disciplina.vagas <= 0) {
-    const e = new Error("Vagas esgotadas para esta disciplina");
-    e.status = 409;
-    throw e;
+    throw new Error("Vagas esgotadas para esta disciplina");
   }
   disciplina.vagas -= 1;
   const novaMatricula = { alunoId, disciplinaId };

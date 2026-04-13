@@ -15,17 +15,6 @@ function buscar(req, res) {
   res.status(200).json(aluno);
 }
 function criar(req, res) {
-  const aluno = req.body;
-  if (!aluno.nome || !aluno.matricula || !aluno.curso) {
-    return res.status(400).json({
-      erro: "Dados inválidos",
-      detalhes: [
-        !aluno.nome && { campo: "nome", mensagem: "Obrigatório" },
-        !aluno.matricula && { campo: "matricula", mensagem: "Obrigatória" },
-        !aluno.curso && { campo: "curso", mensagem: "Obrigatório" },
-      ].filter(Boolean),
-    });
-  }
   try {
     const novoAluno = AlunoModel.criar(req.body);
     res
@@ -52,27 +41,21 @@ function remover(req, res) {
 
 function matricular(req, res) {
   const alunoId = parseInt(req.params.id);
-  const corpo = req.body;
-  if (!corpo.disciplinaId) {
-    return res.status(400).json({
-      erro: "Dados inválidos",
-      detalhes: [
-        !corpo.disciplinaId && { campo: "disciplinaId", mensagem: "Obrigatório" },
-      ].filter(Boolean),
-    });
-  }
-  const { disciplinaId } = corpo;
+  if (isNaN(alunoId)) return res.status(400).json({ erro: "ID inválido" });
   try {
-    const novaMatricula = MatriculaModel.matricular(alunoId, disciplinaId);
+    const novaMatricula = MatriculaModel.matricular(
+      alunoId,
+      req.body.disciplinaId,
+    );
     res.status(201).json(novaMatricula);
   } catch (err) {
-    const status = err.status || 500;
-    res.status(status).json({ erro: err.message });
+    res.status(400).json({ erro: err.message });
   }
 }
 
 function listarMatriculas(req, res) {
   const alunoId = parseInt(req.params.id);
+  if (isNaN(alunoId)) return res.status(400).json({ erro: "ID inválido" });
   const resultado = MatriculaModel.listarDisciplinasPorAluno(alunoId);
   if (!resultado) {
     return res.status(404).json({ erro: "Aluno não encontrado" });
