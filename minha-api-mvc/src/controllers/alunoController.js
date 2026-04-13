@@ -15,6 +15,17 @@ function buscar(req, res) {
   res.status(200).json(aluno);
 }
 function criar(req, res) {
+  const aluno = req.body;
+  if (!aluno.nome || !aluno.matricula || !aluno.curso) {
+    return res.status(400).json({
+      erro: "Dados inválidos",
+      detalhes: [
+        !aluno.nome && { campo: "nome", mensagem: "Obrigatório" },
+        !aluno.matricula && { campo: "matricula", mensagem: "Obrigatória" },
+        !aluno.curso && { campo: "curso", mensagem: "Obrigatório" },
+      ].filter(Boolean),
+    });
+  }
   try {
     const novoAluno = AlunoModel.criar(req.body);
     res
@@ -41,13 +52,16 @@ function remover(req, res) {
 
 function matricular(req, res) {
   const alunoId = parseInt(req.params.id);
-  const { disciplinaId } = req.body;
-  if (!disciplinaId) {
+  const corpo = req.body;
+  if (!corpo.disciplinaId) {
     return res.status(400).json({
       erro: "Dados inválidos",
-      detalhes: [{ campo: "disciplinaId", mensagem: "Obrigatório" }],
+      detalhes: [
+        !corpo.disciplinaId && { campo: "disciplinaId", mensagem: "Obrigatório" },
+      ].filter(Boolean),
     });
   }
+  const { disciplinaId } = corpo;
   try {
     const novaMatricula = MatriculaModel.matricular(alunoId, disciplinaId);
     res.status(201).json(novaMatricula);
